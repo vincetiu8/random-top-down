@@ -1,32 +1,31 @@
-using System;
+using FishNet.Object;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerLook : MonoBehaviour
+public class PlayerLook : NetworkBehaviour
 {
     [SerializeField] private Transform orientation;
     
-    private Plane _flat;
-    private Camera _cam;
-    private Vector3 _mousePos;
+    private Camera _camera;
+    private Vector2 _mousePosition;
+    private Plane _plane;
 
     private void Awake()
     {
-        _cam = GetComponentInChildren<Camera>();
-        _flat = new Plane(Vector3.down, transform.position.y);
+        _camera = Camera.main;
+        _plane = new Plane(Vector3.down, transform.position.y);
     }
 
     private void LateUpdate()
     {
-        Ray ray = _cam.ScreenPointToRay(_mousePos);
-        _flat.Raycast(ray, out float enter);
-        Vector3 hitPoint = ray.GetPoint(enter);
-        orientation.LookAt(hitPoint);
+        Ray ray = _camera.ScreenPointToRay(_mousePosition);
+        _plane.Raycast(ray, out float distance);
+        Vector3 target = ray.GetPoint(distance);
+        orientation.LookAt(target);
     }
 
     public void LookAction(InputAction.CallbackContext context)
     {
-        _mousePos = context.ReadValue<Vector2>();
-
+        _mousePosition = context.ReadValue<Vector2>();
     }
 }
